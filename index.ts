@@ -15,78 +15,97 @@ let answer = await inquirer.prompt([
       if (value.trim() !== "") {
         return true;
       }
-      return "please enter a non empty value";
+      return "Please enter a non-empty value";
     },
   },
   {
     name: "course",
     type: "list",
-    message: "select the course to enrolled",
-    choices: ["MS office", "html", "javascript", "typescript", "phython"],
+    message: "Select the course to enroll",
+    choices: [
+      "MS office",
+      "html",
+      "javascript",
+      "typescript",
+      "python",
+      "View course details",
+    ],
   },
 ]);
 
-const tutionFee: { [key: string]: number } = {
+if (answer.course === "View course details") {
+  console.log(`\n********Course Details********\n`);
+  console.log(`MS office: $2000`);
+  console.log(`html: $2500`);
+  console.log(`javascript: $5000`);
+  console.log(`typescript: $6000`);
+  console.log(`python: $10000`);
+  console.log(`\nPlease run the script again to enroll in a course.\n`);
+  process.exit();
+}
+
+const tuitionFee: { [key: string]: number } = {
   "MS office": 2000,
   html: 2500,
   javascript: 5000,
   typescript: 6000,
-  phython: 10000,
+  python: 10000,
 };
-console.log(`\nTution Fees: ${tutionFee[answer.course]}/-\n`);
+console.log(`\nTuition Fee: ${tuitionFee[answer.course]}/-\n`);
 console.log(`Balance: ${myBalance}\n`);
 
 let paymentType = await inquirer.prompt([
   {
     name: "payment",
     type: "list",
-    message: "please select a payment method",
+    message: "Please select a payment method",
     choices: ["Bank transfer", "easypaisa", "jazzcash"],
   },
   {
     name: "amount",
     type: "input",
-    message: "transfer money",
+    message: "Enter the amount to transfer",
     validate: function (value) {
-      if (value.trim() !== "") {
+      if (!isNaN(value) && parseFloat(value) > 0) {
         return true;
       }
-      return "please enter a non empty value";
+      return "Please enter a valid amount";
     },
   },
 ]);
 
-console.log(`you select payment method ${paymentType.payment}`);
+console.log(`You selected payment method ${paymentType.payment}`);
 
-const tutionFees = tutionFee[answer.course];
+const tuitionFees = tuitionFee[answer.course];
 const paymentAmount = parseFloat(paymentType.amount);
 
-if (tutionFees === paymentAmount) {
+if (paymentAmount >= tuitionFees) {
   console.log(
-    `congratulation you have successfully enrolled in ${answer.course}`
+    `Congratulations! You have successfully enrolled in ${answer.course}`
   );
+  myBalance += paymentAmount;
 
   let ans = await inquirer.prompt([
     {
       name: "select",
       type: "list",
-      message: "what would you like to do next",
-      choices: ["view status", "exit"],
+      message: "What would you like to do next?",
+      choices: ["View status","View Course Details",, "Exit"],
     },
   ]);
 
-  if (ans.select === "view status") {
+  if (ans.select === "View status") {
     console.log(`\n********Status********\n`);
-    console.log(`Student_Name: ${answer.student}`);
-    console.log(`Student_id: ${randomNumber}`);
-    console.log(`course: ${answer.course}`);
-    console.log(`Tution_fee: ${paymentAmount}`);
-    console.log(`Balance: ${(myBalance += paymentAmount)}`);
+    console.log(`Student Name: ${answer.student}`);
+    console.log(`Student ID: ${randomNumber}`);
+    console.log(`Course: ${answer.course}`);
+    console.log(`Tuition Fee: ${tuitionFees}`);
+    console.log(`Paid Amount: ${paymentAmount}`);
+    console.log(`Balance: ${myBalance - tuitionFees}`);
   } else {
     console.log(`Exiting student management system`);
   }
 } else {
-  console.log(`Invalid due to course`);
+  console.log(`Insufficient amount paid. Please try again.`);
 }
-
-console.log(`the end`);
+console.log(`The end`);
